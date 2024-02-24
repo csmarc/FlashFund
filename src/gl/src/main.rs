@@ -2,6 +2,7 @@ use gl_client::{node, pb::cln, scheduler::Scheduler, signer::Signer, tls::TlsCon
 use std::env;
 use std::fs;
 use tokio;
+use rand::Rng;
 // use crate::pb::cln::{amount_or_any, Amount, AmountOrAny};
 
 #[tokio::main]
@@ -85,18 +86,21 @@ async fn main() {
             value: Some(cln::amount_or_any::Value::Amount(cln::Amount { msat: 1000 })),
         };
 
-        println!("Making call...")
         let inv = node
             .invoice(cln::InvoiceRequest {
                 amount_msat: Some(amount),
+                label: generate_random_number_string(8),
                 description: String::from("FlashFund Donation"),
                 ..Default::default()
             })
             .await
             .unwrap();
-
-        println!("Finished\n\n");
-        println!("{:?}", &inv);
-        println!("{:?}", &inv.into_inner());
+            print!("{:?}", &inv.into_inner().bolt11);
     }
+}
+
+fn generate_random_number_string(length: usize) -> String {
+  let mut rng = rand::thread_rng();
+  let number: u32 = rng.gen_range(0..=999_999);
+  format!("{:0>width$}", number, width = length)
 }

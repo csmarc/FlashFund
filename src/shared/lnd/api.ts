@@ -5,6 +5,9 @@ import { URL } from 'url';
 
 import { LnrpcAddInvoiceResponse, LnrpcInvoice } from './types';
 import logger from '../logger';
+import { parse } from 'path';
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
 
 const BASE_URL = process.env.LNADDR_CORE_LIGHTNING;
 // const MACAROON = process.env.LNADDR_LND_REST_MACAROON_HEX;
@@ -30,12 +33,23 @@ class LightningAPI {
     });
   }
 
-  async lightningAddInvoice(createInvoiceArgs: LnrpcInvoice): Promise<any> {
-    console.log('Making address');
+  async lightningAddInvoice(createInvoiceArgs: LnrpcInvoice, session: any): Promise<any> {
+    /*
+      Make terminal call to rust code
+    */
 
-    // const resp = await this.axios.post<LnrpcAddInvoiceResponse>(`v1/invoices`, createInvoiceArgs);
-    // const invoice = resp.data;
-    // return invoice;
+    let dc = `${__dirname}/../../../user-certs/${session.pubkey}/device.crt`;
+    let dk = `${__dirname}/../../../user-certs/${session.pubkey}/device-key.pem`;
+
+    let xc = `/Users/mauricepoirrierchuden/repo/opensource/FlashFund/src/gl/target/debug/gl createinvoice ${session.pubkey} ${dc} ${dk}`;
+    console.log(xc);
+
+    console.log('getting invoice');
+    const lsOut = await exec(xc);
+    console.log(lsOut.stdout);
+
+    //return invoice array
+    return JSON.parse(lsOut.stdout);
   }
 
   async sendWebhookNotification(data: any) {

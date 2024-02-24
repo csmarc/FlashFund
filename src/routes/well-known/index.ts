@@ -34,15 +34,25 @@ router.get('/lnurlp/:username', async (req, res) => {
   if (req.query.amount) {
     const msat = req.query.amount;
 
+    console.log('Making address');
+    console.log((req as any).session.pubkey, '\n\n\n');
+    let { session } = req as any;
+    if (!session.pubkey) {
+      return res.status(400).send('No active session found');
+    }
+
     try {
       logger.debug('Generating LND Invoice');
-      const invoice = await lightningApi.lightningAddInvoice({
-        value_msat: msat as string,
-        description_hash: crypto
-          .createHash('sha256')
-          .update(JSON.stringify(metadata))
-          .digest('base64')
-      });
+      const invoice = await lightningApi.lightningAddInvoice(
+        {
+          value_msat: msat as string,
+          description_hash: crypto
+            .createHash('sha256')
+            .update(JSON.stringify(metadata))
+            .digest('base64')
+        },
+        session
+      );
       logger.debug('LND Invoice', invoice);
 
       // lightningApi.sendWebhookNotification(invoice);
@@ -51,7 +61,7 @@ router.get('/lnurlp/:username', async (req, res) => {
         status: 'OK',
         successAction: { tag: 'message', message: 'Thank You!' },
         routes: [],
-        pr: invoice.payment_request,
+        pr: invoice,
         disposable: false
       });
     } catch (error) {

@@ -12,6 +12,8 @@ import db from './shared/db';
 //randy
 var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
 
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -123,9 +125,6 @@ app.post('/login', async function (req, res) {
   res.status(200).send();
 });
 
-const { promisify } = require('util');
-const exec = promisify(require('child_process').exec);
-
 app.get('/invoices', async function (req, res) {
   console.log((req as any).session.pubkey, '\n\n\n');
   let { session } = req as any;
@@ -142,33 +141,6 @@ app.get('/invoices', async function (req, res) {
 
   let xc = `${__dirname}/gl/target/debug/gl getinvoices ${session.pubkey} ${dc} ${dk}`;
   console.log(xc);
-  const lsOut = await exec(xc);
-  console.log(lsOut.stdout);
-
-  //Parse the stdout into invoice array
-
-  //return invoice array
-  res.json(JSON.parse(lsOut.stdout));
-});
-
-app.get('/invoice', async function (req, res) {
-  console.log((req as any).session.pubkey, '\n\n\n');
-  let { session } = req as any;
-  if (!session.pubkey) {
-    return res.status(400).send('No active session found');
-  }
-
-  /*
-    Make terminal call to rust code
-  */
-
-  let dc = `${__dirname}/../user-certs/${session.pubkey}/device.crt`;
-  let dk = `${__dirname}/../user-certs/${session.pubkey}/device-key.pem`;
-
-  let xc = `${__dirname}/gl/target/debug/gl createinvoice ${session.pubkey} ${dc} ${dk}`;
-  console.log(xc);
-
-  console.log('getting invoice');
   const lsOut = await exec(xc);
   console.log(lsOut.stdout);
 
