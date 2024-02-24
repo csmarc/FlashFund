@@ -1,6 +1,10 @@
 node_modules
 logs
 .DS_Store
+src/sql/users.db
+src/sql/test*
+*.crt
+*.pem
 
 .env
 

@@ -1,3 +1,7 @@
+/*
+export LNADDR_CORE_LIGHTNING="HELLO"
+export LNADDR_DOMAIN=localhost
+*/
 import { Router } from 'express';
 import crypto from 'crypto';
 
@@ -41,7 +45,7 @@ router.get('/lnurlp/:username', async (req, res) => {
       });
       logger.debug('LND Invoice', invoice);
 
-      lightningApi.sendWebhookNotification(invoice);
+      // lightningApi.sendWebhookNotification(invoice);
 
       return res.status(200).json({
         status: 'OK',

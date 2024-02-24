@@ -35,11 +35,17 @@
   },
   "dependencies": {
     "axios": "^0.24.0",
+    "better-sqlite3": "^9.4.3",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "cookie-session": "^2.1.0",
     "express": "^4.17.1",
     "express-handlebars": "^6.0.2",
+    "fs-extra": "^11.2.0",
     "helmet": "^4.6.0",
     "morgan": "^1.10.0",
     "node-fetch": "^3.1.0",
+    "secp256k1": "^5.0.0",
     "socks-proxy-agent": "^6.1.1",
     "winston": "^3.3.3"
   }
