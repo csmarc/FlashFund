@@ -3,6 +3,9 @@ use std::env;
 use std::fs;
 use tokio;
 use rand::Rng;
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
+
 // use crate::pb::cln::{amount_or_any, Amount, AmountOrAny};
 
 #[tokio::main]
@@ -42,8 +45,20 @@ async fn main() {
             .list_invoices(cln::ListinvoicesRequest::default())
             .await
             .unwrap();
+        let mut invoices = Vec::new();
 
-        println!("{:?}", &invs.into_inner().invoices);
+        let _ = &invs.into_inner().invoices.iter().for_each(|i| {
+          let invoice = Invoice {
+              amount_received: i.amount_received_msat.clone().unwrap_or_default().msat,
+              paid_at: i.paid_at.clone().unwrap_or_default(),
+              description: i.description.clone().unwrap_or_default(),
+              amount_msat: i.amount_msat.clone().unwrap_or_default().msat,
+          };
+          // Push the invoice into the vector
+          invoices.push(invoice);
+      });
+      let j = serde_json::to_string(&invoices).unwrap();
+      println!("{}", j);
     }
 
     if cmd == "createinvoice" {
@@ -97,6 +112,14 @@ async fn main() {
             .unwrap();
             print!("{:?}", &inv.into_inner().bolt11);
     }
+}
+
+#[derive(Serialize,Deserialize)]
+struct Invoice {
+  amount_received: u64,
+  paid_at: u64,
+  description: String,
+  amount_msat: u64,
 }
 
 fn generate_random_number_string(length: usize) -> String {
